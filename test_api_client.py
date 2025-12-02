@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Test Client for IoT-23 ML API
-Test the cloud-hosted API before deploying to ESP32
-"""
 
 import requests
 import json
@@ -19,7 +15,6 @@ class APITester:
         })
     
     def test_health_check(self):
-        """Test the health check endpoint"""
         print("🏥 Testing health check...")
         
         try:
@@ -41,7 +36,6 @@ class APITester:
             return False
     
     def test_model_info(self):
-        """Test the model info endpoint"""
         print("\n📊 Testing model info...")
         
         try:
@@ -63,7 +57,6 @@ class APITester:
             return False
     
     def test_prediction(self, test_data, test_name):
-        """Test a prediction with given data"""
         print(f"\n🔍 Testing prediction: {test_name}")
         
         try:
@@ -77,7 +70,6 @@ class APITester:
                 result = response.json()
                 print("✅ Prediction successful")
                 
-                # Display consensus results
                 if 'consensus' in result:
                     consensus = result['consensus']
                     print(f"   Malicious: {consensus.get('is_malicious')}")
@@ -85,7 +77,6 @@ class APITester:
                     print(f"   Confidence: {consensus.get('consensus_score', 0):.3f}")
                     print(f"   Recommendation: {consensus.get('recommendation')}")
                 
-                # Display individual model results
                 if 'predictions' in result:
                     predictions = result['predictions']
                     
@@ -108,7 +99,6 @@ class APITester:
             return False
     
     def test_simple_prediction(self, test_data, test_name):
-        """Test the simplified prediction endpoint"""
         print(f"\n🎯 Testing simple prediction: {test_name}")
         
         try:
@@ -136,11 +126,9 @@ class APITester:
             return False
     
     def run_comprehensive_test(self):
-        """Run comprehensive API tests"""
         print("🚀 Starting comprehensive API test")
         print("=" * 50)
         
-        # Test cases
         test_cases = [
             {
                 'name': 'Normal Web Traffic',
@@ -211,31 +199,25 @@ class APITester:
             'simple_predictions': []
         }
         
-        # Test health check
         results['health_check'] = self.test_health_check()
         
-        # Test model info
         results['model_info'] = self.test_model_info()
         
-        # Test predictions
         for test_case in test_cases:
-            # Full prediction
             success = self.test_prediction(test_case['data'], test_case['name'])
             results['predictions'].append({
                 'name': test_case['name'],
                 'success': success
             })
             
-            # Simple prediction
             success = self.test_simple_prediction(test_case['data'], test_case['name'])
             results['simple_predictions'].append({
                 'name': test_case['name'],
                 'success': success
             })
             
-            time.sleep(1)  # Small delay between tests
+            time.sleep(1)
         
-        # Summary
         print("\n" + "=" * 50)
         print("📋 TEST SUMMARY")
         print("=" * 50)
@@ -266,7 +248,6 @@ class APITester:
         return passed_tests == total_tests
     
     def benchmark_performance(self, num_requests=10):
-        """Benchmark API performance"""
         print(f"\n⚡ Running performance benchmark ({num_requests} requests)...")
         
         test_data = {
@@ -308,7 +289,7 @@ class APITester:
             except Exception as e:
                 print(f"  Request {i+1}: Error ({e})")
             
-            time.sleep(0.1)  # Small delay between requests
+            time.sleep(0.1)
         
         if response_times:
             avg_time = sum(response_times) / len(response_times)
@@ -325,7 +306,6 @@ class APITester:
             print("❌ No successful requests for benchmarking")
 
 def main():
-    """Main test function"""
     import argparse
     
     parser = argparse.ArgumentParser(description='Test IoT-23 ML API')
@@ -344,10 +324,8 @@ def main():
     
     tester = APITester(args.url)
     
-    # Run comprehensive tests
     success = tester.run_comprehensive_test()
     
-    # Run benchmark if requested
     if args.benchmark:
         tester.benchmark_performance(args.requests)
     

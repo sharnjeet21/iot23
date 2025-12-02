@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Advanced IoT-23 Model Deployment
-Deploy and use the comprehensive IoT-23 models for real-time detection
-"""
 
 import numpy as np
 import pandas as pd
@@ -31,7 +27,6 @@ class AdvancedIoT23Detector:
         ]
         
     def load_models(self):
-        """Load all trained models"""
         model_files = {
             'binary_rf': 'advanced_iot23_binary_rf.pkl',
             'isolation_forest': 'advanced_iot23_isolation_forest.pkl',
@@ -49,7 +44,6 @@ class AdvancedIoT23Detector:
                 except FileNotFoundError:
                     print(f"⚠️  {filename} not found, skipping {model_name}")
             
-            # Load scaler
             self.scaler = joblib.load('advanced_iot23_scaler.pkl')
             print("✅ Loaded scaler")
             
@@ -60,7 +54,6 @@ class AdvancedIoT23Detector:
             return False
     
     def predict_binary_supervised(self, **kwargs):
-        """Predict using supervised binary Random Forest"""
         if 'binary_rf' not in self.models:
             return None
         
@@ -76,13 +69,11 @@ class AdvancedIoT23Detector:
         }
     
     def predict_anomaly_detection(self, **kwargs):
-        """Predict using unsupervised anomaly detection"""
         results = {}
         
         features = self._prepare_features_full(**kwargs)
         features_scaled = self.scaler.transform(features)
         
-        # Isolation Forest
         if 'isolation_forest' in self.models:
             iso_pred = self.models['isolation_forest'].predict(features_scaled)[0]
             iso_score = self.models['isolation_forest'].decision_function(features_scaled)[0]
@@ -94,7 +85,6 @@ class AdvancedIoT23Detector:
                 'confidence': abs(iso_score)
             }
         
-        # One-Class SVM
         if 'one_class_svm' in self.models:
             oc_pred = self.models['one_class_svm'].predict(features_scaled)[0]
             oc_score = self.models['one_class_svm'].decision_function(features_scaled)[0]
@@ -109,7 +99,6 @@ class AdvancedIoT23Detector:
         return results
     
     def predict_multiclass(self, **kwargs):
-        """Predict specific attack type using multi-class classifier"""
         if 'multiclass_smote' not in self.models:
             return None
         
@@ -117,10 +106,8 @@ class AdvancedIoT23Detector:
         prediction = self.models['multiclass_smote'].predict(features)[0]
         probabilities = self.models['multiclass_smote'].predict_proba(features)[0]
         
-        # Get class names
         classes = self.models['multiclass_smote'].classes_
         
-        # Top 3 predictions
         top_indices = np.argsort(probabilities)[-3:][::-1]
         top_predictions = [
             {
@@ -139,17 +126,15 @@ class AdvancedIoT23Detector:
         }
     
     def predict_two_tier(self, **kwargs):
-        """Predict using two-tier hybrid approach"""
         if 'binary_rf' not in self.models or 'multiclass_imbalanced' not in self.models:
             return None
         
         features = self._prepare_features_full(**kwargs)
         
-        # Tier 1: Binary detection
         binary_pred = self.models['binary_rf'].predict(features)[0]
         binary_prob = self.models['binary_rf'].predict_proba(features)[0]
         
-        if binary_pred == 0:  # Benign
+        if binary_pred == 0:
             return {
                 'method': 'Two-tier Hybrid',
                 'tier1_result': 'Benign',
@@ -158,7 +143,7 @@ class AdvancedIoT23Detector:
                 'is_attack': False,
                 'confidence': binary_prob[0]
             }
-        else:  # Attack detected, go to Tier 2
+        else:
             multiclass_pred = self.models['multiclass_imbalanced'].predict(features)[0]
             multiclass_prob = self.models['multiclass_imbalanced'].predict_proba(features)[0]
             
@@ -172,7 +157,6 @@ class AdvancedIoT23Detector:
             }
     
     def predict_no_ports(self, **kwargs):
-        """Predict without using port information"""
         if 'no_ports' not in self.models:
             return None
         
@@ -188,18 +172,15 @@ class AdvancedIoT23Detector:
         }
     
     def comprehensive_analysis(self, **kwargs):
-        """Run comprehensive analysis using all available models"""
         print(f"\n🔍 COMPREHENSIVE IoT TRAFFIC ANALYSIS")
         print("=" * 50)
         
-        # Print input features
         print("Input Features:")
         for key, value in kwargs.items():
             print(f"  {key}: {value}")
         
         results = {}
         
-        # 1. Supervised Binary Detection
         binary_result = self.predict_binary_supervised(**kwargs)
         if binary_result:
             results['supervised'] = binary_result
@@ -207,7 +188,6 @@ class AdvancedIoT23Detector:
             print(f"  Attack: {'Yes' if binary_result['is_attack'] else 'No'}")
             print(f"  Confidence: {binary_result['confidence']:.3f}")
         
-        # 2. Anomaly Detection
         anomaly_results = self.predict_anomaly_detection(**kwargs)
         if anomaly_results:
             results['anomaly'] = anomaly_results
@@ -216,7 +196,6 @@ class AdvancedIoT23Detector:
                 print(f"  Anomaly: {'Yes' if result['is_attack'] else 'No'}")
                 print(f"  Anomaly Score: {result['anomaly_score']:.3f}")
         
-        # 3. Multi-class Classification
         multiclass_result = self.predict_multiclass(**kwargs)
         if multiclass_result:
             results['multiclass'] = multiclass_result
@@ -227,7 +206,6 @@ class AdvancedIoT23Detector:
             for pred in multiclass_result['top_predictions']:
                 print(f"    {pred['attack_type']}: {pred['probability']:.3f}")
         
-        # 4. Two-tier Hybrid
         two_tier_result = self.predict_two_tier(**kwargs)
         if two_tier_result:
             results['two_tier'] = two_tier_result
@@ -238,7 +216,6 @@ class AdvancedIoT23Detector:
             print(f"  Final: {two_tier_result['final_prediction']}")
             print(f"  Confidence: {two_tier_result['confidence']:.3f}")
         
-        # 5. No-ports Analysis
         no_ports_result = self.predict_no_ports(**kwargs)
         if no_ports_result:
             results['no_ports'] = no_ports_result
@@ -246,7 +223,6 @@ class AdvancedIoT23Detector:
             print(f"  Attack: {'Yes' if no_ports_result['is_attack'] else 'No'}")
             print(f"  Confidence: {no_ports_result['confidence']:.3f}")
         
-        # Summary
         print(f"\n📋 CONSENSUS ANALYSIS:")
         attack_votes = 0
         total_votes = 0
@@ -285,7 +261,6 @@ class AdvancedIoT23Detector:
     def _prepare_features_full(self, id_orig_p=17576, id_resp_p=8081, duration=0.000002,
                               orig_bytes=0, resp_bytes=0, missed_bytes=0,
                               orig_pkts=2, orig_ip_bytes=80, resp_pkts=0, resp_ip_bytes=0):
-        """Prepare full feature vector"""
         features = np.array([[
             id_orig_p, id_resp_p, duration, orig_bytes, resp_bytes,
             missed_bytes, orig_pkts, orig_ip_bytes, resp_pkts, resp_ip_bytes
@@ -295,7 +270,6 @@ class AdvancedIoT23Detector:
     def _prepare_features_no_ports(self, duration=0.000002, orig_bytes=0, resp_bytes=0,
                                   missed_bytes=0, orig_pkts=2, orig_ip_bytes=80,
                                   resp_pkts=0, resp_ip_bytes=0, **kwargs):
-        """Prepare feature vector without ports"""
         features = np.array([[
             duration, orig_bytes, resp_bytes, missed_bytes,
             orig_pkts, orig_ip_bytes, resp_pkts, resp_ip_bytes
@@ -303,19 +277,15 @@ class AdvancedIoT23Detector:
         return features
 
 def demo_advanced_detection():
-    """Demo the advanced detection system"""
     print("🔒 Advanced IoT-23 Detection System Demo 🔒")
     
-    # Initialize detector
     detector = AdvancedIoT23Detector()
     
-    # Load models
     if not detector.load_models():
         print("Please train models first by running:")
         print("python3 advanced_iot23_model.py")
         return
     
-    # Test cases
     test_cases = [
         {
             'name': 'Suspicious Port Scan',

@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Production WSGI server for IoT-23 ML API
-"""
 
 from cloud_api_server import app
 import logging
@@ -9,7 +6,6 @@ from logging.handlers import RotatingFileHandler
 import os
 
 if __name__ == '__main__':
-    # Setup logging
     if not os.path.exists('logs'):
         os.makedirs('logs')
     
@@ -22,7 +18,6 @@ if __name__ == '__main__':
     app.logger.setLevel(logging.INFO)
     app.logger.info('IoT-23 ML API startup')
 
-    # Run with Gunicorn in production
     import subprocess
     import sys
     

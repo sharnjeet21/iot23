@@ -1,9 +1,7 @@
 #!/bin/bash
-# IoT-23 ML API Deployment Script
 
 echo "🚀 Deploying IoT-23 ML API..."
 
-# Check if model files exist
 if [ ! -f "advanced_iot23_binary_rf.pkl" ] && [ ! -f "iot23_random_forest_model.pkl" ]; then
     echo "❌ Error: No model files found!"
     echo "Please ensure you have trained models before deployment."
@@ -11,7 +9,6 @@ if [ ! -f "advanced_iot23_binary_rf.pkl" ] && [ ! -f "iot23_random_forest_model.
     exit 1
 fi
 
-# Build and start services
 echo "🔨 Building Docker containers..."
 docker-compose build
 
@@ -21,7 +18,6 @@ docker-compose up -d
 echo "⏳ Waiting for services to start..."
 sleep 10
 
-# Test the deployment
 echo "🧪 Testing deployment..."
 curl -f http://localhost/health || {
     echo "❌ Health check failed!"

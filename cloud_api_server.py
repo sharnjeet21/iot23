@@ -25,16 +25,13 @@ class IoTMalwareDetector:
         self.load_models()
     
     def load_models(self):
-        """Load all trained models"""
         try:
-            # Try to load the advanced models first
             model_files = {
                 'binary_rf': 'advanced_iot23_binary_rf.pkl',
                 'isolation_forest': 'advanced_iot23_isolation_forest.pkl',
                 'multiclass': 'advanced_iot23_multiclass_smote.pkl'
             }
             
-            # Fallback to basic models if advanced not available
             fallback_files = {
                 'binary_rf': 'iot23_random_forest_model.pkl',
                 'scaler': 'iot23_scaler.pkl'
@@ -42,14 +39,12 @@ class IoTMalwareDetector:
             
             loaded_count = 0
             
-            # Try advanced models first
             for model_name, filename in model_files.items():
                 if os.path.exists(filename):
                     self.models[model_name] = joblib.load(filename)
                     logger.info(f"✅ Loaded {model_name} from {filename}")
                     loaded_count += 1
             
-            # Load scaler
             scaler_files = ['advanced_iot23_scaler.pkl', 'iot23_scaler.pkl']
             for scaler_file in scaler_files:
                 if os.path.exists(scaler_file):
@@ -57,7 +52,6 @@ class IoTMalwareDetector:
                     logger.info(f"✅ Loaded scaler from {scaler_file}")
                     break
             
-            # Fallback to basic models if needed
             if loaded_count == 0:
                 for model_name, filename in fallback_files.items():
                     if os.path.exists(filename):
@@ -79,7 +73,6 @@ class IoTMalwareDetector:
             self.model_loaded = False
     
     def predict_threat(self, network_data):
-        """Predict if network traffic is malicious"""
         if not self.model_loaded:
             return {
                 'error': 'Models not loaded',
@@ -87,7 +80,6 @@ class IoTMalwareDetector:
             }
         
         try:
-            # Prepare features
             features = self._prepare_features(network_data)
             
             results = {
@@ -98,7 +90,6 @@ class IoTMalwareDetector:
                 'status': 'success'
             }
             
-            # Binary classification
             if 'binary_rf' in self.models:
                 binary_pred = self.models['binary_rf'].predict(features)[0]
                 binary_prob = self.models['binary_rf'].predict_proba(features)[0]
@@ -109,7 +100,6 @@ class IoTMalwareDetector:
                     'malware_probability': float(binary_prob[1] if len(binary_prob) > 1 else binary_prob[0])
                 }
             
-            # Anomaly detection
             if 'isolation_forest' in self.models and self.scaler:
                 features_scaled = self.scaler.transform(features)
                 iso_pred = self.models['isolation_forest'].predict(features_scaled)[0]
@@ -121,13 +111,11 @@ class IoTMalwareDetector:
                     'confidence': float(abs(iso_score))
                 }
             
-            # Multi-class classification
             if 'multiclass' in self.models:
                 multi_pred = self.models['multiclass'].predict(features)[0]
                 multi_prob = self.models['multiclass'].predict_proba(features)[0]
                 classes = self.models['multiclass'].classes_
                 
-                # Get top 3 predictions
                 top_indices = np.argsort(multi_prob)[-3:][::-1]
                 top_predictions = [
                     {
@@ -144,7 +132,6 @@ class IoTMalwareDetector:
                     'is_benign': str(multi_pred) == 'Benign'
                 }
             
-            # Consensus analysis
             threat_votes = 0
             total_votes = 0
             
@@ -185,8 +172,6 @@ class IoTMalwareDetector:
             }
     
     def _prepare_features(self, data):
-        """Prepare feature vector from input data"""
-        # Default values for missing features
         defaults = {
             'id_orig_p': 0,
             'id_resp_p': 0,
@@ -200,12 +185,10 @@ class IoTMalwareDetector:
             'resp_ip_bytes': 0
         }
         
-        # Update with provided data
         for key, value in data.items():
             if key in defaults:
                 defaults[key] = float(value)
         
-        # Create feature vector
         features = np.array([[
             defaults['id_orig_p'],
             defaults['id_resp_p'],
@@ -222,7 +205,6 @@ class IoTMalwareDetector:
         return features
     
     def _get_threat_level(self, consensus_score):
-        """Get threat level based on consensus score"""
         if consensus_score >= 0.8:
             return "HIGH"
         elif consensus_score >= 0.5:
@@ -233,7 +215,6 @@ class IoTMalwareDetector:
             return "MINIMAL"
     
     def _get_recommendation(self, consensus_score):
-        """Get recommendation based on consensus score"""
         if consensus_score >= 0.8:
             return "BLOCK_IMMEDIATELY"
         elif consensus_score >= 0.5:
@@ -243,12 +224,10 @@ class IoTMalwareDetector:
         else:
             return "ALLOW_NORMAL_OPERATION"
 
-# Initialize detector
 detector = IoTMalwareDetector()
 
 @app.route('/', methods=['GET'])
 def home():
-    """API status endpoint"""
     return jsonify({
         'service': 'IoT-23 Malware Detection API',
         'version': '1.0.0',
@@ -264,7 +243,6 @@ def home():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
     return jsonify({
         'status': 'healthy' if detector.model_loaded else 'unhealthy',
         'models_loaded': detector.model_loaded,
@@ -275,7 +253,6 @@ def health_check():
 
 @app.route('/models', methods=['GET'])
 def model_info():
-    """Get information about loaded models"""
     return jsonify({
         'models': list(detector.models.keys()),
         'scaler_available': detector.scaler is not None,
@@ -286,9 +263,7 @@ def model_info():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    """Main prediction endpoint for IoT devices"""
     try:
-        # Get JSON data from request
         data = request.get_json()
         
         if not data:
@@ -298,13 +273,9 @@ def predict():
                 'timestamp': datetime.now().isoformat()
             }), 400
         
-        # Log request (optional, remove in production for privacy)
         logger.info(f"Prediction request from {request.remote_addr}")
         
-        # Get prediction
         result = detector.predict_threat(data)
-        
-        # Return result
         if result.get('status') == 'error':
             return jsonify(result), 500
         else:
@@ -321,7 +292,6 @@ def predict():
 
 @app.route('/predict/simple', methods=['POST'])
 def predict_simple():
-    """Simplified prediction endpoint for basic IoT devices"""
     try:
         data = request.get_json()
         
@@ -336,7 +306,6 @@ def predict_simple():
                 'error': result.get('error', 'Unknown error')
             }), 500
         
-        # Simplified response for ESP32
         consensus = result.get('consensus', {})
         
         return jsonify({
@@ -372,7 +341,6 @@ def internal_error(error):
     }), 500
 
 if __name__ == '__main__':
-    # Check if models are loaded
     if not detector.model_loaded:
         print("⚠️  WARNING: No models loaded! Please ensure model files are present.")
         print("   Expected files: advanced_iot23_*.pkl or iot23_*.pkl")
@@ -385,9 +353,8 @@ if __name__ == '__main__':
         print(f"   • GET /health - Health check")
         print(f"   • GET /models - Model information")
     
-    # Run the Flask app
     app.run(
-        host='0.0.0.0',  # Listen on all interfaces
-        port=5000,       # Default port
-        debug=False      # Set to False in production
+        host='0.0.0.0',
+        port=5000,
+        debug=False
     )
