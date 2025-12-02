@@ -1,0 +1,12 @@
+services:
+- type: web
+  name: iot23-ml-api
+  env: python
+  buildCommand: pip install -r requirements.txt
+  startCommand: gunicorn cloud_api_server:app --bind 0.0.0.0:$PORT --workers 4
+  healthCheckPath: /health
+  envVars:
+  - key: FLASK_ENV
+    value: production
+  - key: PYTHON_VERSION
+    value: 3.9.18

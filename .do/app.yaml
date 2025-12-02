@@ -1,0 +1,27 @@
+{
+  "name": "iot23-ml-api",
+  "services": [
+    {
+      "name": "api",
+      "source_dir": "/",
+      "github": {
+        "repo": "your-username/iot23-ml-api",
+        "branch": "main"
+      },
+      "run_command": "gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py cloud_api_server:app",
+      "environment_slug": "python",
+      "instance_count": 1,
+      "instance_size_slug": "basic-xxs",
+      "http_port": 8080,
+      "health_check": {
+        "http_path": "/health"
+      },
+      "env": [
+        {
+          "key": "FLASK_ENV",
+          "value": "production"
+        }
+      ]
+    }
+  ]
+}
