@@ -308,13 +308,92 @@ def predict_simple():
         
         consensus = result.get('consensus', {})
         
-        return jsonify({
+        # Prepare response for ESP32
+        esp32_response = {
             'is_malicious': consensus.get('is_malicious', False),
             'threat_level': consensus.get('threat_level', 'MINIMAL'),
             'confidence': consensus.get('consensus_score', 0.0),
             'recommendation': consensus.get('recommendation', 'ALLOW_NORMAL_OPERATION'),
             'timestamp': result.get('timestamp')
-        }), 200
+        }
+        
+        # Forward data to dashboard
+        try:
+            import requests
+            
+            # Determine specific malware traffic type based on ESP32 patterns
+            orig_port = data.get('id_orig_p', 0)
+            resp_port = data.get('id_resp_p', 0)
+            duration = data.get('duration', 0.0)
+            orig_bytes = data.get('orig_bytes', 0)
+            resp_bytes = data.get('resp_bytes', 0)
+            
+            # Detailed malware type classification based on ESP32 traffic patterns
+            if orig_port == 443 and resp_port == 80:
+                traffic_type = '✅ Normal HTTPS Web Traffic'
+            elif 15000 <= orig_port <= 25000 and 20 <= resp_port <= 1024:
+                traffic_type = '🚨 Port Scanning Attack'
+            elif resp_port == 80 and duration < 0.01 and orig_bytes < 100:
+                traffic_type = '⚡ DDoS Flood Attack'
+            elif 40000 <= orig_port <= 50000 and 6660 <= resp_port <= 6669:
+                traffic_type = '🤖 Botnet C&C Communication'
+            elif 30000 <= orig_port <= 40000 and 4444 <= resp_port <= 8888:
+                traffic_type = '⛏️ Cryptocurrency Mining Malware'
+            elif 35000 <= orig_port <= 45000 and 21 <= resp_port <= 25:
+                traffic_type = '📤 Data Exfiltration Attempt'
+            elif 50000 <= orig_port <= 60000 and 443 <= resp_port <= 8443:
+                traffic_type = '🔒 Ransomware C&C Traffic'
+            elif 20000 <= orig_port <= 30000 and 23 <= resp_port <= 2323:
+                traffic_type = '🌐 IoT Malware (Mirai-style)'
+            elif 45000 <= orig_port <= 55000 and 1337 <= resp_port <= 31337:
+                traffic_type = '🚪 Backdoor/RAT Communication'
+            elif 32000 <= orig_port <= 42000 and resp_port == 53:
+                traffic_type = '🕳️ DNS Tunneling Attack'
+            elif 38000 <= orig_port <= 48000 and 8080 <= resp_port <= 9090:
+                traffic_type = '⌨️ Keylogger Data Transmission'
+            elif 1024 <= orig_port <= 5000 and 80 <= resp_port <= 443:
+                traffic_type = '🏠 Normal IoT Communication'
+            else:
+                # Fallback to generic classification
+                if resp_port == 80 or resp_port == 443:
+                    traffic_type = 'HTTP/HTTPS Web Traffic'
+                elif resp_port > 8000:
+                    traffic_type = 'Suspicious High Port Access'
+                elif duration < 0.01 and orig_bytes == 0:
+                    traffic_type = 'Potential Port Scan'
+                elif orig_port > 1024 and resp_port < 1024:
+                    traffic_type = 'IoT Device Communication'
+                else:
+                    traffic_type = 'Unknown Network Traffic'
+            
+            dashboard_data = {
+                'timestamp': esp32_response['timestamp'],
+                'traffic_type': traffic_type,
+                'ports': f"{orig_port} → {resp_port}",
+                'is_malicious': esp32_response['is_malicious'],
+                'confidence': esp32_response['confidence'],
+                'threat_level': esp32_response['threat_level'],
+                'recommendation': esp32_response['recommendation'],
+                'id_orig_p': orig_port,
+                'id_resp_p': resp_port,
+                'duration': data.get('duration', 0.0),
+                'orig_bytes': data.get('orig_bytes', 0),
+                'resp_bytes': data.get('resp_bytes', 0)
+            }
+            
+            # Send to dashboard
+            requests.post(
+                "http://10.128.138.251:5002/api/esp32_data",
+                json=dashboard_data,
+                headers={'Content-Type': 'application/json'},
+                timeout=3
+            )
+            logger.info(f"📊 Dashboard updated with ESP32 data")
+            
+        except Exception as e:
+            logger.warning(f"⚠️ Dashboard update failed: {e}")
+        
+        return jsonify(esp32_response), 200
         
     except Exception as e:
         logger.error(f"Simple API error: {e}")
