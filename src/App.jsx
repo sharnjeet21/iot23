@@ -28,7 +28,7 @@ function App() {
 
   useEffect(() => {
     // Connect to Socket.IO server
-    const newSocket = io('http://10.128.138.251:5002', {
+    const newSocket = io('http://10.237.20.251:5002', {
       transports: ['websocket', 'polling']
     })
 
@@ -68,7 +68,7 @@ function App() {
     // Fallback: Fetch status every 5 seconds if WebSocket fails
     const statusInterval = setInterval(async () => {
       try {
-        const response = await fetch('http://10.128.138.251:5002/api/status')
+        const response = await fetch('http://10.237.20.251:5002/api/status')
         const status = await response.json()
         console.log('Fetched status via API:', status)
         setSystemStatus(prev => ({

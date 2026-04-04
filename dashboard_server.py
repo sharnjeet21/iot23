@@ -17,14 +17,14 @@ import os
 
 app = Flask(__name__, static_folder='dist', static_url_path='')
 app.config['SECRET_KEY'] = 'cybershield_2024'
-CORS(app, origins=["http://localhost:5001", "http://10.128.138.251:5001"])
-socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5001", "http://10.128.138.251:5001"])
+CORS(app, origins=["http://localhost:5001", "http://10.237.20.251:5001"])
+socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5001", "http://10.237.20.251:5001"], async_mode='threading')
 
 # Configuration
-API_SERVER_URL = "http://10.128.138.251:8080"
+API_SERVER_URL = "http://10.237.20.251:8080"
 BACKEND_PORT = 5002
 
-# Global data storage
+# Global data storage - RESET TO ZERO
 dashboard_data = {
     'threats': [],
     'system_status': {

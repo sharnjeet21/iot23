@@ -383,7 +383,7 @@ def predict_simple():
             
             # Send to dashboard
             requests.post(
-                "http://10.128.138.251:5002/api/esp32_data",
+                "http://10.237.20.251:5002/api/esp32_data",
                 json=dashboard_data,
                 headers={'Content-Type': 'application/json'},
                 timeout=3
