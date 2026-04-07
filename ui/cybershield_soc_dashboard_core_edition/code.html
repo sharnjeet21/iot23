@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CyberShield SOC - Security Operations Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#0052CC",
+                        "primary-container": "#DEEBFF",
+                        "on-primary": "#FFFFFF",
+                        "on-primary-container": "#0747A6",
+                        "secondary": "#36B37E",
+                        "secondary-container": "#E3FCEF",
+                        "on-secondary": "#006644",
+                        "tertiary": "#FF5630",
+                        "tertiary-container": "#FFEBE6",
+                        "on-tertiary": "#BF2600",
+                        "surface": "#FFFFFF",
+                        "surface-dim": "#F4F5F7",
+                        "surface-bright": "#FFFFFF",
+                        "surface-container-lowest": "#FFFFFF",
+                        "surface-container-low": "#F4F5F7",
+                        "surface-container": "#EBECF0",
+                        "surface-container-high": "#DFE1E6",
+                        "surface-container-highest": "#C1C7D0",
+                        "on-surface": "#172B4D",
+                        "on-surface-variant": "#42526E",
+                        "outline": "#7A869A",
+                        "outline-variant": "#DFE1E6",
+                        "background": "#F4F5F7",
+                        "on-background": "#172B4D",
+                        "error": "#DE350B",
+                        "on-error": "#FFFFFF"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"],
+                        "mono": ["JetBrains Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #F4F5F7; overflow: hidden; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #EBECF0; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #C1C7D0; border-radius: 4px; }
+        .chart-glow { filter: drop-shadow(0 0 4px rgba(0, 82, 204, 0.2)); }
+    </style>
+</head>
+<body class="font-body text-on-surface h-screen flex flex-col overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface flex justify-between items-center w-full px-6 py-3 h-16 shrink-0 z-50 border-b border-outline-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="shield">shield</span>
+<h1 class="text-xl font-bold uppercase tracking-widest text-primary font-headline">CyberShield SOC</h1>
+</div>
+<div class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary-container border border-secondary/20">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse shadow-[0_0_8px_#36B37E]"></span>
+<span class="font-label text-xs tracking-widest font-bold text-on-secondary">LIVE MONITORING</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-xs font-mono text-on-surface-variant">
+<span>Server: 192.168.1.5:5002</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<nav class="hidden md:flex gap-6 mx-8">
+<a class="text-primary border-b-2 border-primary pb-1 font-headline text-sm uppercase tracking-wider" href="#">Operations</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-headline text-sm uppercase tracking-wider" href="#">Network</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-headline text-sm uppercase tracking-wider" href="#">Analytics</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-headline text-sm uppercase tracking-wider" href="#">Archive</a>
+</nav>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="sensors">sensors</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="settings">settings</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-surface-dim w-64 flex flex-col py-6 shrink-0 border-r border-outline-variant">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high ring-1 ring-primary/20">
+<img alt="System Administrator Avatar" data-alt="System administrator portrait with professional neutral lighting and technology themed background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUiF9QRIeCtRjCLvM6wn5oPcVCBH8V-bc5dhH08YXCl7WQ8n3DYUAhvyXEvVk-w2wGkzxxayMfDyH29pofqU5Iv7b9iUZ0T7GZA9x20fnEpkoB57FhP5rzciPzBCHiqBEdy-Q1Suja5vVdOsiw-Km7_QdLBAtdjM7LikNCy87GvZvpemaJF-_4ETAnkbVW9l5YUBcYrWM3rd_H8eGg7StqQFG1f_b-4RbPZ8B8-997brLyH6-5tZCq3QtRI_S_EKJXpRZcn3mACVDl"/>
+</div>
+<div>
+<p class="text-on-surface font-bold text-sm tracking-tight font-headline">Admin Console</p>
+<p class="text-on-surface-variant text-[10px] uppercase tracking-tighter">Level 4 Clearance</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="group flex items-center px-6 py-3 text-primary bg-primary-container/50 border-r-4 border-primary cursor-pointer transition-all">
+<span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
+<span class="font-label text-xs uppercase tracking-widest font-bold">Dashboard</span>
+</div>
+<div class="group flex items-center px-6 py-3 text-on-surface-variant hover:bg-surface-container hover:text-primary cursor-pointer transition-all">
+<span class="material-symbols-outlined mr-3" data-icon="radar">radar</span>
+<span class="font-label text-xs uppercase tracking-widest font-bold">Threat Hunt</span>
+</div>
+<div class="group flex items-center px-6 py-3 text-on-surface-variant hover:bg-surface-container hover:text-primary cursor-pointer transition-all">
+<span class="material-symbols-outlined mr-3" data-icon="hub">hub</span>
+<span class="font-label text-xs uppercase tracking-widest font-bold">Node Map</span>
+</div>
+<div class="group flex items-center px-6 py-3 text-on-surface-variant hover:bg-surface-container hover:text-primary cursor-pointer transition-all">
+<span class="material-symbols-outlined mr-3" data-icon="terminal">terminal</span>
+<span class="font-label text-xs uppercase tracking-widest font-bold">System Logs</span>
+</div>
+<div class="group flex items-center px-6 py-3 text-on-surface-variant hover:bg-surface-container hover:text-primary cursor-pointer transition-all">
+<span class="material-symbols-outlined mr-3" data-icon="policy">policy</span>
+<span class="font-label text-xs uppercase tracking-widest font-bold">Security Policy</span>
+</div>
+</nav>
+<div class="px-6 mb-6">
+<button class="w-full py-2.5 bg-primary text-on-primary font-headline text-xs font-bold uppercase tracking-widest rounded shadow-sm hover:brightness-110 active:scale-95 transition-all">
+                    Deploy Patch
+                </button>
+</div>
+<div class="mt-auto border-t border-outline-variant pt-4">
+<div class="flex items-center px-6 py-3 text-on-surface-variant hover:text-primary cursor-pointer text-xs uppercase font-label font-bold">
+<span class="material-symbols-outlined mr-3 text-sm" data-icon="help">help</span>
+                    Support
+                </div>
+<div class="flex items-center px-6 py-3 text-tertiary hover:text-on-tertiary cursor-pointer text-xs uppercase font-label font-bold">
+<span class="material-symbols-outlined mr-3 text-sm" data-icon="logout">logout</span>
+                    Logout
+                </div>
+</div>
+</aside>
+<!-- Main Dashboard Canvas -->
+<main class="flex-1 flex flex-col p-6 gap-6 bg-background overflow-hidden">
+<!-- Metrics Row -->
+<div class="grid grid-cols-4 gap-6 shrink-0">
+<!-- Card 1 -->
+<div class="bg-surface p-4 rounded-xl flex flex-col gap-1 border border-outline-variant shadow-sm">
+<div class="flex justify-between items-center mb-2">
+<span class="text-on-surface-variant text-[10px] uppercase font-label font-bold tracking-widest">Controller Status</span>
+<div class="w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_8px_#36B37E]"></div>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="memory">memory</span>
+<div class="text-2xl font-headline font-bold text-on-surface">ESP32 <span class="text-secondary text-sm ml-1 font-bold">ONLINE</span></div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface p-4 rounded-xl flex flex-col gap-1 border border-outline-variant shadow-sm">
+<div class="flex justify-between items-center mb-2">
+<span class="text-on-surface-variant text-[10px] uppercase font-label font-bold tracking-widest">Active Scans</span>
+<span class="material-symbols-outlined text-primary text-lg" data-icon="troubleshoot">troubleshoot</span>
+</div>
+<div class="text-3xl font-headline font-bold text-primary">142</div>
+<div class="text-[10px] text-on-surface-variant uppercase tracking-tighter font-medium">Current Network Probes</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface p-4 rounded-xl flex flex-col gap-1 border border-outline-variant shadow-sm">
+<div class="flex justify-between items-center mb-2">
+<span class="text-on-surface-variant text-[10px] uppercase font-label font-bold tracking-widest">Detected Threats</span>
+<div class="flex items-center text-tertiary text-xs gap-0.5 font-bold">
+<span class="material-symbols-outlined text-xs" data-icon="arrow_upward">arrow_upward</span>
+                            12%
+                        </div>
+</div>
+<div class="text-3xl font-headline font-bold text-tertiary">61</div>
+<div class="text-[10px] text-on-surface-variant uppercase tracking-tighter font-medium">High Confidence Matches</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface p-4 rounded-xl flex flex-col gap-1 border border-outline-variant shadow-sm">
+<div class="flex justify-between items-center mb-2">
+<span class="text-on-surface-variant text-[10px] uppercase font-label font-bold tracking-widest">Exposure Index</span>
+<span class="material-symbols-outlined text-[#FFAB00] text-lg" data-icon="warning">warning</span>
+</div>
+<div class="text-3xl font-headline font-bold text-[#FFAB00]">43.0%</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full mt-2 overflow-hidden">
+<div class="bg-[#FFAB00] h-full" style="width: 43%"></div>
+</div>
+</div>
+</div>
+<!-- Central Visuals Section -->
+<div class="flex-1 flex flex-col gap-6 min-h-0">
+<!-- Top Chart: Threat Timeline -->
+<div class="h-1/2 bg-surface rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col overflow-hidden">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline font-bold text-on-surface text-xs uppercase tracking-widest">Threat Detection Timeline (Real-time)</h3>
+<div class="flex gap-4 text-[10px] uppercase font-label font-bold">
+<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span> Safe Traffic</div>
+<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span> Malicious</div>
+</div>
+</div>
+<div class="flex-1 relative">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 1000 200">
+<!-- Safe Traffic Path -->
+<path class="opacity-80" d="M0,150 C100,140 200,160 300,130 C400,110 500,140 600,100 C700,90 800,110 900,80 L1000,95" fill="none" stroke="#36B37E" stroke-width="4"></path>
+<!-- Malicious Path -->
+<path class="chart-glow" d="M0,180 C100,185 200,170 300,175 C400,160 500,130 600,150 C700,120 800,60 900,40 L1000,55" fill="none" stroke="#FF5630" stroke-width="4"></path>
+<!-- Grid Lines -->
+<line stroke="#DFE1E6" stroke-dasharray="4" stroke-width="1" x1="0" x2="1000" y1="180" y2="180"></line>
+<line stroke="#DFE1E6" stroke-dasharray="4" stroke-width="1" x1="0" x2="1000" y1="100" y2="100"></line>
+<line stroke="#DFE1E6" stroke-dasharray="4" stroke-width="1" x1="0" x2="1000" y1="20" y2="20"></line>
+</svg>
+</div>
+</div>
+<!-- Bottom Split Section -->
+<div class="h-1/2 flex gap-6 min-h-0">
+<!-- Live Detection List -->
+<div class="w-3/5 bg-surface rounded-xl border border-outline-variant shadow-sm flex flex-col overflow-hidden">
+<div class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-dim">
+<div class="flex items-center gap-3">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary animate-ping"></span>
+<h3 class="font-headline font-bold text-xs uppercase tracking-widest text-on-surface">Live Threat Detection</h3>
+</div>
+<span class="text-[10px] text-on-surface-variant font-mono font-bold">ACTIVE ENTRIES: 24</span>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2 bg-surface">
+<!-- Alert Item -->
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded border-l-4 border-tertiary shadow-sm">
+<div class="flex items-center gap-4">
+<span class="text-xl">🤖</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold font-headline uppercase text-on-surface">Botnet C&amp;C</span>
+<span class="text-[9px] bg-tertiary-container text-on-tertiary px-1.5 py-0.5 rounded font-bold uppercase">Malicious</span>
+</div>
+<p class="text-[10px] text-on-surface-variant font-mono">Target: 42337 → Dest: 6667 | Protocol: IRC</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-mono font-bold text-on-tertiary">100% Confidence</p>
+<p class="text-[9px] text-on-surface-variant">2.4s ago</p>
+</div>
+</div>
+<!-- Alert Item -->
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded border-l-4 border-secondary shadow-sm">
+<div class="flex items-center gap-4">
+<span class="text-xl">📊</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold font-headline uppercase text-on-surface">UDP Flood Analysis</span>
+<span class="text-[9px] bg-secondary-container text-on-secondary px-1.5 py-0.5 rounded font-bold uppercase">Resolved</span>
+</div>
+<p class="text-[10px] text-on-surface-variant font-mono">IP: 185.122.4.11 → Port 53 | Scrubbed</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-mono font-bold text-on-secondary">Verified Safe</p>
+<p class="text-[9px] text-on-surface-variant">12.1s ago</p>
+</div>
+</div>
+<!-- Alert Item -->
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded border-l-4 border-tertiary shadow-sm">
+<div class="flex items-center gap-4">
+<span class="text-xl">📡</span>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold font-headline uppercase text-on-surface">Port Scan</span>
+<span class="text-[9px] bg-tertiary-container text-on-tertiary px-1.5 py-0.5 rounded font-bold uppercase">Malicious</span>
+</div>
+<p class="text-[10px] text-on-surface-variant font-mono">Sequential Probing detected on Subnet A</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-mono font-bold text-on-tertiary">92% Confidence</p>
+<p class="text-[9px] text-on-surface-variant">18.5s ago</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Distribution Chart -->
+<div class="w-2/5 bg-surface rounded-xl border border-outline-variant shadow-sm flex flex-col p-4 relative overflow-hidden">
+<h3 class="font-headline font-bold text-on-surface text-xs uppercase tracking-widest mb-6">Traffic Type Distribution</h3>
+<div class="flex-1 flex items-center justify-center relative">
+<!-- Doughnut Chart -->
+<div class="relative w-40 h-40 rounded-full border-[12px] border-surface-container-low" style="border-image: conic-gradient(#FF5630 0% 35%, #0052CC 35% 70%, #36B37E 70% 100%) 1; border-radius: 50%;">
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-2xl font-bold font-headline text-on-surface">1.4k</span>
+<span class="text-[8px] uppercase tracking-widest text-on-surface-variant font-bold">Events</span>
+</div>
+</div>
+<div class="ml-8 space-y-3">
+<div class="flex items-center gap-2 text-[10px] font-bold uppercase text-on-surface">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span> 35% Botnet
+                                </div>
+<div class="flex items-center gap-2 text-[10px] font-bold uppercase text-on-surface">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span> 35% Port Scan
+                                </div>
+<div class="flex items-center gap-2 text-[10px] font-bold uppercase text-on-surface">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span> 30% Other
+                                </div>
+</div>
+</div>
+<!-- Abstract overlay -->
+<div class="absolute -bottom-8 -right-8 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-9xl text-primary" data-icon="security">security</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Console -->
+<footer class="h-32 bg-surface-dim rounded border border-outline-variant p-3 font-mono text-[11px] flex flex-col shrink-0 shadow-inner">
+<div class="flex justify-between border-b border-outline-variant pb-1 mb-2">
+<span class="text-on-surface-variant font-bold uppercase text-[9px] tracking-widest">System Logs</span>
+<span class="text-on-secondary bg-secondary-container px-2 py-0.5 rounded text-[9px] font-bold uppercase">Live Streams Attached</span>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar leading-relaxed text-on-surface">
+<div class="flex gap-4">
+<span class="text-on-surface-variant font-bold">[14:32:05]</span>
+<span class="text-on-secondary font-bold">INFO:</span>
+<span>Gateway handshake protocol initialized for 192.168.1.5</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant font-bold">[14:32:08]</span>
+<span class="text-on-primary-container font-bold">NET:</span>
+<span>DNS query intercepted and analyzed. Reputation: <span class="text-secondary font-bold">Clean</span></span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant font-bold">[14:32:12]</span>
+<span class="text-on-tertiary font-bold">WARN:</span>
+<span class="text-tertiary">Signature match 'ET C&amp;C ShadowServer' on Internal Node 012</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant font-bold">[14:32:15]</span>
+<span class="text-on-secondary font-bold">INFO:</span>
+<span>New node ESP32 connected to local mesh. DHCP assigned.</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant font-bold">[14:32:18]</span>
+<span class="text-on-surface-variant font-bold">SYS:</span>
+<span>Automated scrub process initiated for identified Botnet traffic</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant font-bold">[14:32:20]</span>
+<span class="text-on-primary-container font-bold">NET:</span>
+<span>Traffic re-routing via VPN tunnel Alpha for secure analysis</span>
+</div>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

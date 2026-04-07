@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CyberShield - IoT Threat Scanner</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Fira+Code&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#0052CC",
+                        "primary-container": "#D6E2FF",
+                        "on-primary": "#FFFFFF",
+                        "on-primary-container": "#001A41",
+                        "secondary": "#575E71",
+                        "secondary-container": "#DBE2F9",
+                        "on-secondary": "#FFFFFF",
+                        "on-secondary-container": "#141B2C",
+                        "tertiary": "#715573",
+                        "tertiary-container": "#FAD8FD",
+                        "on-tertiary": "#FFFFFF",
+                        "on-tertiary-container": "#29132D",
+                        "error": "#BA1A1A",
+                        "error-container": "#FFDAD6",
+                        "on-error": "#FFFFFF",
+                        "on-error-container": "#410002",
+                        "background": "#F8F9FF",
+                        "on-background": "#191C20",
+                        "surface": "#F8F9FF",
+                        "on-surface": "#191C20",
+                        "surface-variant": "#E0E2EC",
+                        "on-surface-variant": "#44474E",
+                        "outline": "#74777F",
+                        "surface-container-lowest": "#FFFFFF",
+                        "surface-container-low": "#F2F3F9",
+                        "surface-container": "#ECEEF5",
+                        "surface-container-high": "#E6E8EF",
+                        "surface-container-highest": "#E1E2E9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "8px",
+                        "lg": "12px",
+                        "xl": "16px",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "body": ["Space Grotesk", "sans-serif"],
+                        "label": ["Space Grotesk", "sans-serif"],
+                        "mono": ["Fira Code", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .connection-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        body { 
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-outline/10 shadow-sm">
+<div class="flex justify-between items-center px-4 h-16 w-full max-w-5xl mx-auto">
+<div class="text-primary font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-2xl" data-icon="shield" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="font-headline font-bold tracking-tight text-lg">CyberShield</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 bg-primary/5 px-3 py-1.5 rounded-full border border-primary/10">
+<div class="w-2 h-2 rounded-full bg-primary connection-pulse"></div>
+<span class="text-[10px] font-bold text-primary uppercase tracking-wider">ESP32 Connected</span>
+</div>
+<button class="p-2 rounded-lg hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="settings">settings</span>
+</button>
+</div>
+</div>
+</header>
+<main class="mt-20 px-4 max-w-lg mx-auto space-y-6">
+<!-- Hero Header -->
+<div class="pt-2">
+<h1 class="text-3xl font-bold tracking-tight text-on-surface">IoT Threat Scanner</h1>
+<p class="text-on-surface-variant text-sm mt-1">Real-time IoT Malware Detection System</p>
+</div>
+<!-- ESP32 Connection Card -->
+<section class="bg-surface-container-lowest rounded-lg p-6 border border-outline/10 shadow-sm">
+<h2 class="text-xs font-bold text-primary uppercase tracking-widest mb-4">Device Interface</h2>
+<div class="space-y-4">
+<div>
+<label class="block text-[11px] font-bold text-outline mb-1.5 uppercase tracking-wider">ESP32 IP Address</label>
+<div class="flex gap-2">
+<input class="flex-1 bg-surface-container-low border border-outline/20 rounded-lg h-12 px-4 font-mono text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="0.0.0.0" type="text" value="192.168.1.45"/>
+<button class="bg-primary text-on-primary font-bold px-6 rounded-lg h-12 shadow-sm hover:brightness-110 active:scale-95 transition-all">Connect</button>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-2">
+<div class="bg-surface-container-low rounded-lg p-3 text-center border border-outline/5">
+<span class="block text-[9px] font-bold text-outline uppercase">Uptime</span>
+<span class="text-xs font-bold text-on-surface">14h 22m</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 text-center border border-outline/5">
+<span class="block text-[9px] font-bold text-outline uppercase">Scans</span>
+<span class="text-xs font-bold text-on-surface">1,204</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 text-center border border-outline/5">
+<span class="block text-[9px] font-bold text-outline uppercase text-error/80">Threats</span>
+<span class="text-xs font-bold text-error">12</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Traffic Type Selector -->
+<section class="space-y-4">
+<div class="flex justify-between items-end px-1">
+<h2 class="text-xs font-bold text-primary uppercase tracking-widest">Traffic Simulator</h2>
+<span class="text-[10px] text-outline font-medium">Select one signature</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<!-- Button: Normal HTTPS (Selected State) -->
+<button class="flex flex-col items-start p-4 bg-primary text-on-primary rounded-lg border-2 border-primary shadow-md shadow-primary/20 transition-all text-left">
+<span class="text-2xl mb-2">🛡️</span>
+<span class="font-bold text-sm block">Normal HTTPS</span>
+<span class="text-[10px] opacity-80 leading-tight mt-1">Secure encrypted web traffic</span>
+</button>
+<!-- Button: Port Scan -->
+<button class="flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🔍</span>
+<span class="font-bold text-sm block">Port Scan</span>
+<span class="text-[10px] text-on-surface-variant leading-tight mt-1">Reconnaissance probe</span>
+</button>
+<!-- Button: DDoS Flood -->
+<button class="flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🌊</span>
+<span class="font-bold text-sm block">DDoS Flood</span>
+<span class="text-[10px] text-on-surface-variant leading-tight mt-1">High volume exhaustion</span>
+</button>
+<!-- Button: Botnet C&C -->
+<button class="flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🤖</span>
+<span class="font-bold text-sm block">Botnet C&amp;C</span>
+<span class="text-[10px] text-on-surface-variant leading-tight mt-1">Command communication</span>
+</button>
+<!-- Button: Ransomware -->
+<button class="flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🔒</span>
+<span class="font-bold text-sm block">Ransomware</span>
+<span class="text-[10px] text-on-surface-variant leading-tight mt-1">Encryption attempt</span>
+</button>
+<!-- Button: Data Exfil -->
+<button class="flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">📤</span>
+<span class="font-bold text-sm block">Data Exfil</span>
+<span class="text-[10px] text-on-surface-variant leading-tight mt-1">Unauthorized transfer</span>
+</button>
+</div>
+</section>
+<!-- Optional Parameters -->
+<details class="group bg-surface-container-low rounded-lg overflow-hidden border border-outline/10">
+<summary class="flex justify-between items-center p-4 cursor-pointer list-none hover:bg-surface-container transition-colors">
+<span class="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="tune">tune</span>
+                Optional Parameters
+            </span>
+<span class="material-symbols-outlined group-open:rotate-180 transition-transform" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="px-4 pb-4 grid grid-cols-2 gap-4">
+<div>
+<label class="block text-[10px] font-bold text-outline mb-1 uppercase">Source Port</label>
+<input class="w-full bg-surface-container-lowest border border-outline/20 rounded-lg h-10 px-3 text-xs focus:ring-1 focus:ring-primary/40 focus:border-primary outline-none" type="number" value="443"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-outline mb-1 uppercase">Dest Port</label>
+<input class="w-full bg-surface-container-lowest border border-outline/20 rounded-lg h-10 px-3 text-xs focus:ring-1 focus:ring-primary/40 focus:border-primary outline-none" type="number" value="51234"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-outline mb-1 uppercase">Bytes Sent</label>
+<input class="w-full bg-surface-container-lowest border border-outline/20 rounded-lg h-10 px-3 text-xs focus:ring-1 focus:ring-primary/40 focus:border-primary outline-none" type="number" value="1204"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-outline mb-1 uppercase">Bytes Rcvd</label>
+<input class="w-full bg-surface-container-lowest border border-outline/20 rounded-lg h-10 px-3 text-xs focus:ring-1 focus:ring-primary/40 focus:border-primary outline-none" type="number" value="4096"/>
+</div>
+</div>
+</details>
+<!-- Send Button -->
+<button class="w-full h-14 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-3 shadow-lg shadow-primary/25 hover:brightness-110 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined animate-spin" data-icon="progress_activity" style="font-size: 20px;">progress_activity</span>
+        Analyze Traffic Segment
+    </button>
+<!-- Result Card (Threat Example) -->
+<section class="bg-error-container/40 rounded-lg overflow-hidden border border-error/20 shadow-sm">
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="inline-flex items-center gap-1 bg-error text-on-error px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1.5">
+<span class="material-symbols-outlined text-[12px]" data-icon="report" style="font-variation-settings: 'FILL' 1;">report</span>
+                        Alert Level: Critical
+                    </span>
+<h3 class="text-2xl font-bold text-on-error-container">🚨 THREAT DETECTED</h3>
+</div>
+<div class="text-right">
+<span class="block text-[10px] font-bold text-on-error-container/60 uppercase">Confidence</span>
+<span class="text-xl font-bold text-on-error-container">98.4%</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center py-2 border-b border-error/10">
+<span class="text-xs text-on-error-container/70 font-medium">Attack Vector</span>
+<span class="text-xs font-bold text-on-error-container">Botnet Command &amp; Control</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-error/10">
+<span class="text-xs text-on-error-container/70 font-medium">Protocol Activity</span>
+<span class="text-xs font-bold text-on-error-container">Non-standard DNS Tunneling</span>
+</div>
+</div>
+<div class="mt-6 p-4 bg-surface-container-lowest/60 rounded-lg border border-error/5">
+<p class="text-[11px] font-bold text-error uppercase mb-1">Recommendation</p>
+<p class="text-sm text-on-error-container/90 leading-relaxed">Isolate the device from the local network immediately and flush DNS cache. Traffic signature matches known Mirai botnet variant.</p>
+</div>
+</div>
+</section>
+<!-- Activity Log -->
+<section class="space-y-3">
+<h2 class="text-xs font-bold text-primary uppercase tracking-widest px-1">System Audit Log</h2>
+<div class="bg-on-background/95 rounded-lg p-4 font-mono text-[11px] h-48 overflow-y-auto shadow-inner border border-on-background">
+<div class="space-y-1">
+<p class="text-surface-variant/70">[14:22:01] <span class="text-primary-container">SYS:</span> Connection established to 192.168.1.45</p>
+<p class="text-surface-variant/70">[14:22:05] <span class="text-primary-container">INF:</span> Neural engine ready for inference</p>
+<p class="text-surface-variant/70">[14:23:10] <span class="text-primary-container">INF:</span> Packet capture buffer initialized (4MB)</p>
+<p class="text-tertiary-container">[14:23:15] <span class="text-tertiary-container">OK:</span> Model v2.4 loaded successfully</p>
+<p class="text-error-container">[14:25:44] <span class="text-error-container">ALR:</span> Suspicious entropy detected in UDP stream</p>
+<p class="text-error font-bold">[14:25:45] <span class="text-error">CRT:</span> Threat ID 0x882 assigned to packet cluster</p>
+<p class="text-surface-variant/70">[14:25:48] <span class="text-primary-container">INF:</span> Sending telemetry to dashboard...</p>
+<p class="text-outline animate-pulse">_</p>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-8 pt-3 bg-white/95 backdrop-blur-xl border-t border-outline/10 z-50">
+<button class="flex flex-col items-center justify-center bg-primary/10 text-primary rounded-lg px-4 py-2 transition-all duration-300 ease-out active:scale-90">
+<span class="material-symbols-outlined" data-icon="radar" style="font-variation-settings: 'FILL' 1;">radar</span>
+<span class="text-[10px] font-bold uppercase tracking-wider mt-1">Scanner</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline px-4 py-2 hover:text-primary transition-all duration-300 ease-out active:scale-90">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-[10px] font-bold uppercase tracking-wider mt-1">Logs</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline px-4 py-2 hover:text-primary transition-all duration-300 ease-out active:scale-90">
+<span class="material-symbols-outlined" data-icon="router">router</span>
+<span class="text-[10px] font-bold uppercase tracking-wider mt-1">Devices</span>
+</button>
+<button class="flex flex-col items-center justify-center text-outline px-4 py-2 hover:text-error transition-all duration-300 ease-out active:scale-90">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<span class="text-[10px] font-bold uppercase tracking-wider mt-1">Alerts</span>
+</button>
+</nav>
+</body></html>

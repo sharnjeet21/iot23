@@ -3,7 +3,6 @@
 CyberShield Backend Server for React Dashboard
 Handles WebSocket connections and serves the React app
 """
-
 from flask import Flask, send_from_directory, jsonify, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
@@ -15,14 +14,15 @@ from datetime import datetime
 import sqlite3
 import os
 
+# Configuration
+MAC_IP = os.environ.get('MAC_IP', '10.237.20.251')
+API_SERVER_URL = os.environ.get('API_SERVER_URL', f'http://{MAC_IP}:8080')
+BACKEND_PORT = int(os.environ.get('BACKEND_PORT', 5002))
+
 app = Flask(__name__, static_folder='dist', static_url_path='')
 app.config['SECRET_KEY'] = 'cybershield_2024'
-CORS(app, origins=["http://localhost:5001", "http://10.237.20.251:5001"])
-socketio = SocketIO(app, cors_allowed_origins=["http://localhost:5001", "http://10.237.20.251:5001"], async_mode='threading')
-
-# Configuration
-API_SERVER_URL = "http://10.237.20.251:8080"
-BACKEND_PORT = 5002
+CORS(app, origins=[f"http://localhost:5001", f"http://{MAC_IP}:5001"])
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 # Global data storage - RESET TO ZERO
 dashboard_data = {
@@ -222,7 +222,7 @@ if __name__ == '__main__':
     print("🔄 Periodic status monitoring started")
     
     print(f"🌐 Backend server: http://localhost:{BACKEND_PORT}")
-    print(f"🌐 Network access: http://10.128.138.251:{BACKEND_PORT}")
+    print(f"🌐 Network access: http://{MAC_IP}:{BACKEND_PORT}")
     print("📊 WebSocket server ready for React connections")
     print("🎯 Features:")
     print("   • React + Tailwind CSS frontend")

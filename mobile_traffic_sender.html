@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CyberShield - IoT Threat Scanner</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Fira+Code&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#0052CC",
+                        "primary-container": "#D6E2FF",
+                        "on-primary": "#FFFFFF",
+                        "on-primary-container": "#001A41",
+                        "secondary": "#575E71",
+                        "secondary-container": "#DBE2F9",
+                        "on-secondary": "#FFFFFF",
+                        "on-secondary-container": "#141B2C",
+                        "tertiary": "#715573",
+                        "tertiary-container": "#FAD8FD",
+                        "on-tertiary": "#FFFFFF",
+                        "on-tertiary-container": "#29132D",
+                        "error": "#BA1A1A",
+                        "error-container": "#FFDAD6",
+                        "on-error": "#FFFFFF",
+                        "on-error-container": "#410002",
+                        "background": "#F8F9FF",
+                        "on-background": "#191C20",
+                        "surface": "#F8F9FF",
+                        "on-surface": "#191C20",
+                        "surface-variant": "#E0E2EC",
+                        "on-surface-variant": "#44474E",
+                        "outline": "#74777F",
+                        "surface-container-lowest": "#FFFFFF",
+                        "surface-container-low": "#F2F3F9",
+                        "surface-container": "#ECEEF5",
+                        "surface-container-high": "#E6E8EF",
+                        "surface-container-highest": "#E1E2E9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "8px",
+                        "lg": "12px",
+                        "xl": "16px",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "body": ["Space Grotesk", "sans-serif"],
+                        "label": ["Space Grotesk", "sans-serif"],
+                        "mono": ["Fira Code", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .connection-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        body { 
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface pb-32">
+
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-outline/10 shadow-sm">
+<div class="flex justify-between items-center px-4 h-16 w-full max-w-5xl mx-auto">
+<div class="text-primary font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="font-headline font-bold tracking-tight text-lg">CyberShield</span>
+</div>
+<div class="flex items-center gap-3">
+<div id="connBadge" class="flex items-center gap-2 bg-primary/5 px-3 py-1.5 rounded-full border border-primary/10">
+<div id="connDot" class="w-2 h-2 rounded-full bg-outline"></div>
+<span id="connText" class="text-[10px] font-bold text-outline uppercase tracking-wider">Not Connected</span>
+</div>
+<button onclick="openSettings()" class="p-2 rounded-lg hover:bg-surface-container-high transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</button>
+</div>
+</div>
+</header>
+<main id="pageScanner" class="mt-20 px-4 max-w-lg mx-auto space-y-6">
+<!-- Hero Header -->
+<div class="pt-2">
+<h1 class="text-3xl font-bold tracking-tight text-on-surface">IoT Threat Scanner</h1>
+<p class="text-on-surface-variant text-sm mt-1">Real-time IoT Malware Detection System</p>
+</div>
+<!-- ESP32 Connection Card -->
+<section class="bg-surface-container-lowest rounded-lg p-6 border border-outline/10 shadow-sm">
+<h2 class="text-xs font-bold text-primary uppercase tracking-widest mb-4">Device Interface</h2>
+<div class="space-y-4">
+<div>
+<label class="block text-[11px] font-bold text-outline mb-1.5 uppercase tracking-wider">ESP32 IP Address</label>
+<div class="flex gap-2">
+<input id="esp32Ip" class="flex-1 bg-surface-container-low border border-outline/20 rounded-lg h-12 px-4 font-mono text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="e.g. 10.237.20.218" type="text"/>
+<button onclick="connectESP32()" class="bg-primary text-on-primary font-bold px-6 rounded-lg h-12 shadow-sm hover:brightness-110 active:scale-95 transition-all">Connect</button>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-2">
+<div class="bg-surface-container-low rounded-lg p-3 text-center border border-outline/5">
+<span class="block text-[9px] font-bold text-outline uppercase">Scans</span>
+<span id="statScans" class="text-xs font-bold text-on-surface">—</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 text-center border border-outline/5">
+<span class="block text-[9px] font-bold text-outline uppercase">Threats</span>
+<span id="statThreats" class="text-xs font-bold text-error">—</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 text-center border border-outline/5">
+<span class="block text-[9px] font-bold text-outline uppercase">Signal</span>
+<span id="statSignal" class="text-xs font-bold text-on-surface">—</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Traffic Type Selector -->
+<section class="space-y-4">
+<div class="flex justify-between items-end px-1">
+<h2 class="text-xs font-bold text-primary uppercase tracking-widest">Traffic Simulator</h2>
+<span class="text-[10px] text-outline font-medium">Select one signature</span>
+</div>
+<div class="grid grid-cols-2 gap-3" id="trafficGrid">
+<button onclick="selectTraffic(this,'normal_https')" data-type="normal_https" class="traffic-btn selected flex flex-col items-start p-4 bg-primary text-on-primary rounded-lg border-2 border-primary shadow-md shadow-primary/20 transition-all text-left">
+<span class="text-2xl mb-2">✅</span><span class="font-bold text-sm block">Normal HTTPS</span><span class="text-[10px] opacity-80 leading-tight mt-1">Secure encrypted web traffic</span>
+</button>
+<button onclick="selectTraffic(this,'port_scan')" data-type="port_scan" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🚨</span><span class="font-bold text-sm block">Port Scan</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Reconnaissance probe</span>
+</button>
+<button onclick="selectTraffic(this,'ddos')" data-type="ddos" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">⚡</span><span class="font-bold text-sm block">DDoS Flood</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">High volume exhaustion</span>
+</button>
+<button onclick="selectTraffic(this,'botnet')" data-type="botnet" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🤖</span><span class="font-bold text-sm block">Botnet C&amp;C</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Command communication</span>
+</button>
+<button onclick="selectTraffic(this,'cryptomining')" data-type="cryptomining" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">⛏️</span><span class="font-bold text-sm block">Cryptomining</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Resource hijacking</span>
+</button>
+<button onclick="selectTraffic(this,'exfiltration')" data-type="exfiltration" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">📤</span><span class="font-bold text-sm block">Data Exfil</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Unauthorized transfer</span>
+</button>
+<button onclick="selectTraffic(this,'ransomware')" data-type="ransomware" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🔒</span><span class="font-bold text-sm block">Ransomware</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Encryption malware C&amp;C</span>
+</button>
+<button onclick="selectTraffic(this,'mirai')" data-type="mirai" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🌐</span><span class="font-bold text-sm block">IoT Malware</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Mirai-style attack</span>
+</button>
+<button onclick="selectTraffic(this,'rat')" data-type="rat" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🚪</span><span class="font-bold text-sm block">Backdoor/RAT</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Remote access trojan</span>
+</button>
+<button onclick="selectTraffic(this,'dns_tunnel')" data-type="dns_tunnel" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🕳️</span><span class="font-bold text-sm block">DNS Tunnel</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Covert channel attack</span>
+</button>
+<button onclick="selectTraffic(this,'keylogger')" data-type="keylogger" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">⌨️</span><span class="font-bold text-sm block">Keylogger</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Credential theft</span>
+</button>
+<button onclick="selectTraffic(this,'normal_iot')" data-type="normal_iot" class="traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm">
+<span class="text-2xl mb-2">🏠</span><span class="font-bold text-sm block">Normal IoT</span><span class="text-[10px] text-on-surface-variant leading-tight mt-1">Legitimate device traffic</span>
+</button>
+</div>
+</section>
+<!-- Optional Parameters -->
+<details class="group bg-surface-container-low rounded-lg overflow-hidden border border-outline/10">
+<summary class="flex justify-between items-center p-4 cursor-pointer list-none hover:bg-surface-container transition-colors">
+<span class="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-base">tune</span> Optional Parameters
+</span>
+<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="px-4 pb-4 grid grid-cols-2 gap-4">
+<div><label class="block text-[10px] font-bold text-outline mb-1 uppercase">Source Port</label>
+<input id="srcPort" class="w-full bg-surface-container-lowest border border-outline/20 rounded-lg h-10 px-3 text-xs focus:ring-1 focus:ring-primary/40 focus:border-primary outline-none font-mono" type="number" placeholder="Auto"/></div>
+<div><label class="block text-[10px] font-bold text-outline mb-1 uppercase">Dest Port</label>
+<input id="dstPort" class="w-full bg-surface-container-lowest border border-outline/20 rounded-lg h-10 px-3 text-xs focus:ring-1 focus:ring-primary/40 focus:border-primary outline-none font-mono" type="number" placeholder="Auto"/></div>
+<div><label class="block text-[10px] font-bold text-outline mb-1 uppercase">Bytes Sent</label>
+<input id="bytesSent" class="w-full bg-surface-container-lowest border border-outline/20 rounded-lg h-10 px-3 text-xs focus:ring-1 focus:ring-primary/40 focus:border-primary outline-none font-mono" type="number" placeholder="Auto"/></div>
+<div><label class="block text-[10px] font-bold text-outline mb-1 uppercase">Bytes Rcvd</label>
+<input id="bytesRecv" class="w-full bg-surface-container-lowest border border-outline/20 rounded-lg h-10 px-3 text-xs focus:ring-1 focus:ring-primary/40 focus:border-primary outline-none font-mono" type="number" placeholder="Auto"/></div>
+</div>
+</details>
+<!-- Send Button -->
+<button id="sendBtn" onclick="sendTraffic()" class="w-full h-14 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-3 shadow-lg shadow-primary/25 hover:brightness-110 active:scale-[0.98] transition-all">
+<span id="sendIcon" class="material-symbols-outlined" style="font-size:20px">send</span>
+<span id="sendText">Analyze Traffic Segment</span>
+</button>
+<!-- Result Card -->
+<section id="resultCard" class="hidden rounded-lg overflow-hidden border shadow-sm">
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span id="resultBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1.5">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings:'FILL' 1">report</span>
+<span id="resultBadgeText">Alert Level</span>
+</span>
+<h3 id="resultTitle" class="text-2xl font-bold"></h3>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center py-2 border-b border-current/10">
+<span class="text-xs font-medium opacity-70">Traffic Type</span>
+<span id="resultType" class="text-xs font-bold"></span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-current/10">
+<span class="text-xs font-medium opacity-70">Ports</span>
+<span id="resultPorts" class="text-xs font-bold font-mono"></span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-current/10">
+<span class="text-xs font-medium opacity-70">Threat Level</span>
+<span id="resultLevel" class="text-xs font-bold"></span>
+</div>
+</div>
+<div class="mt-4 p-4 bg-surface-container-lowest/60 rounded-lg border border-current/5">
+<p class="text-[11px] font-bold uppercase mb-1 opacity-70">Recommendation</p>
+<p id="resultRec" class="text-sm leading-relaxed"></p>
+</div>
+</div>
+</section>
+<!-- Activity Log -->
+<section class="space-y-3">
+<h2 class="text-xs font-bold text-primary uppercase tracking-widest px-1">System Audit Log</h2>
+<div id="logBox" class="bg-on-background/95 rounded-lg p-4 font-mono text-[11px] h-48 overflow-y-auto shadow-inner border border-on-background space-y-1">
+<p class="text-outline animate-pulse">_</p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-8 pt-3 bg-white/95 backdrop-blur-xl border-t border-outline/10 z-50">
+<button id="navScanner" onclick="showPage('scanner')" class="nav-btn flex flex-col items-center justify-center bg-primary/10 text-primary rounded-lg px-4 py-2 transition-all duration-300 ease-out active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">radar</span>
+<span class="text-[10px] font-bold uppercase tracking-wider mt-1">Scanner</span>
+</button>
+<button id="navLogs" onclick="showPage('logs')" class="nav-btn flex flex-col items-center justify-center text-outline px-4 py-2 hover:text-primary transition-all duration-300 ease-out active:scale-90">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-[10px] font-bold uppercase tracking-wider mt-1">Logs</span>
+</button>
+<button id="navDevices" onclick="showPage('devices')" class="nav-btn flex flex-col items-center justify-center text-outline px-4 py-2 hover:text-primary transition-all duration-300 ease-out active:scale-90">
+<span class="material-symbols-outlined">router</span>
+<span class="text-[10px] font-bold uppercase tracking-wider mt-1">Devices</span>
+</button>
+<button id="navAlerts" onclick="showPage('alerts')" class="nav-btn flex flex-col items-center justify-center text-outline px-4 py-2 hover:text-error transition-all duration-300 ease-out active:scale-90">
+<span class="material-symbols-outlined">warning</span>
+<span class="text-[10px] font-bold uppercase tracking-wider mt-1">Alerts</span>
+</button>
+</nav>
+
+<!-- Settings Panel -->
+<div id="settingsPanel" class="fixed inset-0 z-[100] hidden">
+<div class="absolute inset-0 bg-black/40" onclick="closeSettings()"></div>
+<div class="absolute right-0 top-0 h-full w-72 bg-white shadow-2xl p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<h2 class="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Settings</h2>
+<button onclick="closeSettings()" class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined">close</span></button>
+</div>
+<div>
+<label class="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1.5">ESP32 IP Address</label>
+<input id="settingsIp" type="text" placeholder="e.g. 10.237.20.218" class="w-full bg-surface-container-low border border-outline/20 rounded-lg h-10 px-3 font-mono text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"/>
+</div>
+<button onclick="saveSettings()" class="w-full h-10 bg-primary text-on-primary font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all text-sm uppercase tracking-wider">Save &amp; Apply</button>
+<div class="border-t border-outline/10 pt-4 text-[11px] text-on-surface-variant font-mono space-y-1">
+<div>CyberShield Scanner v2.0</div>
+<div id="settingsStatus">Status: Disconnected</div>
+</div>
+</div>
+</div>
+
+<!-- Alerts Page -->
+<main id="pageAlerts" class="hidden mt-20 px-4 max-w-lg mx-auto space-y-6 pb-32">
+<div class="pt-2"><h1 class="text-3xl font-bold tracking-tight text-on-surface">Threat Alerts</h1>
+<p class="text-on-surface-variant text-sm mt-1">Malicious detections only</p></div>
+<div id="alertsList"><p class="text-center text-on-surface-variant text-sm py-12">No threats detected yet</p></div>
+</main>
+
+<!-- Devices Page -->
+<main id="pageDevices" class="hidden mt-20 px-4 max-w-lg mx-auto space-y-6 pb-32">
+<div class="pt-2"><h1 class="text-3xl font-bold tracking-tight text-on-surface">Connected Devices</h1>
+<p class="text-on-surface-variant text-sm mt-1">Network node information</p></div>
+<div class="space-y-3">
+<div class="bg-surface-container-lowest rounded-lg p-4 border border-outline/10 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-3"><span class="text-2xl">🔌</span>
+<div><p class="font-bold text-sm text-on-surface">ESP32 Device</p>
+<p id="deviceIpDisplay" class="text-[11px] text-on-surface-variant font-mono">Not connected</p></div></div>
+<div id="deviceStatus" class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-surface-container text-outline">Offline</div>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-4 border border-outline/10 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-3"><span class="text-2xl">📱</span>
+<div><p class="font-bold text-sm text-on-surface">This Device</p>
+<p class="text-[11px] text-on-surface-variant font-mono">Mobile Browser</p></div></div>
+<div class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-green-100 text-green-700">Online</div>
+</div>
+</div>
+</main>
+
+<script>
+let selectedType='normal_https',esp32Connected=false,allAlerts=[]
+const profiles={
+  normal_https:{name:'✅ Normal HTTPS Web Traffic',src:443,dst:80,dur:0.8,ob:1500,rb:8000,op:10,rp:15},
+  port_scan:{name:'🚨 Port Scanning Attack',src:()=>r(15000,25000),dst:()=>r(20,1024),dur:0.0001,ob:40,rb:0,op:1,rp:0},
+  ddos:{name:'⚡ DDoS Flood Attack',src:()=>r(1024,65535),dst:80,dur:0.002,ob:60,rb:0,op:1,rp:0},
+  botnet:{name:'🤖 Botnet C&C Communication',src:()=>r(40000,50000),dst:()=>r(6660,6669),dur:0.015,ob:450,rb:300,op:5,rp:4},
+  cryptomining:{name:'⛏️ Cryptocurrency Mining Malware',src:()=>r(30000,40000),dst:()=>r(4444,8888),dur:30,ob:900,rb:600,op:10,rp:8},
+  exfiltration:{name:'📤 Data Exfiltration Attempt',src:()=>r(35000,45000),dst:()=>r(21,25),dur:45,ob:500000,rb:800,op:420,rp:8},
+  ransomware:{name:'🔒 Ransomware C&C Traffic',src:()=>r(50000,60000),dst:()=>r(443,8443),dur:4,ob:1200,rb:2000,op:12,rp:18},
+  mirai:{name:'🌐 IoT Malware (Mirai-style)',src:()=>r(20000,30000),dst:23,dur:0.05,ob:120,rb:0,op:180,rp:0},
+  rat:{name:'🚪 Backdoor/RAT Communication',src:()=>r(45000,55000),dst:()=>r(1337,31337),dur:10,ob:700,rb:900,op:8,rp:10},
+  dns_tunnel:{name:'🕳️ DNS Tunneling Attack',src:()=>r(32000,42000),dst:53,dur:0.08,ob:480,rb:460,op:12,rp:12},
+  keylogger:{name:'⌨️ Keylogger Data Transmission',src:()=>r(38000,48000),dst:()=>r(8080,9090),dur:1.2,ob:400,rb:100,op:6,rp:2},
+  normal_iot:{name:'🏠 Normal IoT Communication',src:()=>r(1024,5000),dst:()=>r(80,443),dur:0.5,ob:500,rb:300,op:5,rp:4}
+}
+function r(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function rv(v){return typeof v==='function'?v():v}
+
+window.onload=()=>{
+  const s=localStorage.getItem('esp32Ip')
+  if(s)document.getElementById('esp32Ip').value=s
+  addLog('CyberShield Scanner initialized','sys')
+  addLog('Enter ESP32 IP and tap Connect','inf')
+}
+
+function showPage(p){
+  document.getElementById('pageScanner').classList.add('hidden')
+  document.getElementById('pageAlerts').classList.add('hidden')
+  document.getElementById('pageDevices').classList.add('hidden')
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.className='nav-btn flex flex-col items-center justify-center text-outline px-4 py-2 hover:text-primary transition-all duration-300 ease-out active:scale-90'})
+  const ac='nav-btn flex flex-col items-center justify-center bg-primary/10 text-primary rounded-lg px-4 py-2 transition-all duration-300 ease-out active:scale-90'
+  if(p==='scanner'){document.getElementById('pageScanner').classList.remove('hidden');document.getElementById('navScanner').className=ac}
+  else if(p==='logs'){document.getElementById('pageScanner').classList.remove('hidden');document.getElementById('navLogs').className=ac;setTimeout(()=>document.getElementById('logBox').scrollIntoView({behavior:'smooth'}),100)}
+  else if(p==='alerts'){document.getElementById('pageAlerts').classList.remove('hidden');document.getElementById('navAlerts').className=ac}
+  else if(p==='devices'){document.getElementById('pageDevices').classList.remove('hidden');document.getElementById('navDevices').className=ac}
+}
+
+function openSettings(){document.getElementById('settingsIp').value=document.getElementById('esp32Ip').value;document.getElementById('settingsPanel').classList.remove('hidden')}
+function closeSettings(){document.getElementById('settingsPanel').classList.add('hidden')}
+function saveSettings(){const ip=document.getElementById('settingsIp').value.trim();if(ip){document.getElementById('esp32Ip').value=ip;localStorage.setItem('esp32Ip',ip);addLog('Settings saved — IP: '+ip,'inf')}closeSettings()}
+
+async function connectESP32(){
+  const ip=document.getElementById('esp32Ip').value.trim()
+  if(!ip){addLog('Enter ESP32 IP address first','alr');return}
+  localStorage.setItem('esp32Ip',ip);addLog('Connecting to '+ip+'...','inf');setConn(false,'Connecting...')
+  try{
+    const res=await fetch('http://'+ip+'/health',{signal:AbortSignal.timeout(6000)})
+    if(!res.ok)throw new Error('HTTP '+res.status)
+    const d=await res.json()
+    esp32Connected=true;setConn(true,'ESP32 Online ('+ip+')')
+    document.getElementById('statScans').textContent=d.total_scans??'0'
+    document.getElementById('statThreats').textContent=d.threats_found??'0'
+    document.getElementById('statSignal').textContent='Good'
+    document.getElementById('deviceIpDisplay').textContent=ip
+    document.getElementById('deviceStatus').textContent='Online'
+    document.getElementById('deviceStatus').className='text-[10px] font-bold uppercase px-2 py-1 rounded bg-green-100 text-green-700'
+    document.getElementById('settingsStatus').textContent='Status: Connected to '+ip
+    addLog('ESP32 online — Scans: '+(d.total_scans??0)+', Threats: '+(d.threats_found??0),'ok')
+  }catch(e){esp32Connected=false;setConn(false,'Connection Failed');addLog('Failed: '+e.message,'alr')}
+}
+
+function setConn(on,txt){
+  const dot=document.getElementById('connDot'),t=document.getElementById('connText'),b=document.getElementById('connBadge')
+  t.textContent=txt
+  if(on){dot.className='w-2 h-2 rounded-full bg-green-500 connection-pulse';t.className='text-[10px] font-bold text-green-600 uppercase tracking-wider';b.className='flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full border border-green-200'}
+  else{dot.className='w-2 h-2 rounded-full bg-outline';t.className='text-[10px] font-bold text-outline uppercase tracking-wider';b.className='flex items-center gap-2 bg-primary/5 px-3 py-1.5 rounded-full border border-primary/10'}
+}
+
+function selectTraffic(el,type){
+  selectedType=type
+  document.querySelectorAll('.traffic-btn').forEach(b=>{b.className='traffic-btn flex flex-col items-start p-4 bg-surface-container-lowest hover:bg-surface-container-high rounded-lg border border-outline/20 transition-all text-left shadow-sm'})
+  el.className='traffic-btn flex flex-col items-start p-4 bg-primary text-on-primary rounded-lg border-2 border-primary shadow-md shadow-primary/20 transition-all text-left'
+}
+
+async function sendTraffic(){
+  const ip=document.getElementById('esp32Ip').value.trim()
+  if(!ip){addLog('Enter ESP32 IP address first','alr');return}
+  const p=profiles[selectedType]
+  const payload={id_orig_p:parseInt(document.getElementById('srcPort').value)||rv(p.src),id_resp_p:parseInt(document.getElementById('dstPort').value)||rv(p.dst),duration:p.dur,orig_bytes:parseInt(document.getElementById('bytesSent').value)||p.ob,resp_bytes:parseInt(document.getElementById('bytesRecv').value)||p.rb,missed_bytes:0,orig_pkts:p.op,orig_ip_bytes:parseInt(document.getElementById('bytesSent').value)||p.ob,resp_pkts:p.rp,resp_ip_bytes:parseInt(document.getElementById('bytesRecv').value)||p.rb,traffic_type:p.name}
+  const btn=document.getElementById('sendBtn');btn.disabled=true
+  document.getElementById('sendIcon').classList.add('animate-spin')
+  document.getElementById('sendText').textContent='Analyzing...'
+  document.getElementById('resultCard').classList.add('hidden')
+  addLog('Sending '+p.name,'inf');addLog('Payload: '+payload.id_orig_p+' → '+payload.id_resp_p+' | '+payload.orig_bytes+'B','inf')
+  try{
+    const res=await fetch('http://'+ip+'/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(35000)})
+    if(!res.ok)throw new Error('HTTP '+res.status)
+    const result=await res.json()
+    showResult(result,p.name,payload)
+    addLog('Result: '+(result.is_malicious?'🚨 THREAT':'✅ SAFE'),result.is_malicious?'alr':'ok')
+    document.getElementById('statScans').textContent=result.total_scans??'—'
+    document.getElementById('statThreats').textContent=result.total_threats??'—'
+    if(result.is_malicious){allAlerts.unshift({...result,traffic_type:p.name,ports:payload.id_orig_p+' → '+payload.id_resp_p,time:new Date()});renderAlerts()}
+  }catch(e){addLog('Error: '+e.message,'alr');showError(p.name,payload)}
+  btn.disabled=false;document.getElementById('sendIcon').classList.remove('animate-spin');document.getElementById('sendText').textContent='Analyze Traffic Segment'
+}
+
+function showResult(result,typeName,payload){
+  const card=document.getElementById('resultCard'),isMal=result.is_malicious,level=result.threat_level||'LOW'
+  if(isMal){card.className='rounded-lg overflow-hidden border border-error/20 shadow-sm bg-error-container/40';document.getElementById('resultBadge').className='inline-flex items-center gap-1 bg-error text-on-error px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1.5';document.getElementById('resultBadgeText').textContent='Alert Level: '+level;document.getElementById('resultTitle').textContent='🚨 THREAT DETECTED';document.getElementById('resultTitle').className='text-2xl font-bold text-on-error-container'}
+  else{card.className='rounded-lg overflow-hidden border border-green-200 shadow-sm bg-green-50';document.getElementById('resultBadge').className='inline-flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1.5';document.getElementById('resultBadgeText').textContent='Traffic Safe';document.getElementById('resultTitle').textContent='✅ TRAFFIC IS SAFE';document.getElementById('resultTitle').className='text-2xl font-bold text-green-800'}
+  document.getElementById('resultType').textContent=typeName
+  document.getElementById('resultPorts').textContent=payload.id_orig_p+' → '+payload.id_resp_p
+  document.getElementById('resultLevel').textContent=level
+  document.getElementById('resultRec').textContent=result.recommendation||'—'
+  card.classList.remove('hidden');card.scrollIntoView({behavior:'smooth',block:'nearest'})
+}
+
+function showError(typeName,payload){
+  const card=document.getElementById('resultCard')
+  card.className='rounded-lg overflow-hidden border border-error/20 shadow-sm bg-error-container/40'
+  document.getElementById('resultBadge').className='inline-flex items-center gap-1 bg-error text-on-error px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1.5'
+  document.getElementById('resultBadgeText').textContent='Connection Error'
+  document.getElementById('resultTitle').textContent='❌ Connection Failed'
+  document.getElementById('resultTitle').className='text-2xl font-bold text-on-error-container'
+  document.getElementById('resultType').textContent=typeName
+  document.getElementById('resultPorts').textContent=payload.id_orig_p+' → '+payload.id_resp_p
+  document.getElementById('resultLevel').textContent='—'
+  document.getElementById('resultRec').textContent='Check ESP32 IP and ensure device is on same network'
+  card.classList.remove('hidden')
+}
+
+function renderAlerts(){
+  const list=document.getElementById('alertsList')
+  if(!allAlerts.length){list.innerHTML='<p class="text-center text-on-surface-variant text-sm py-12">No threats detected yet</p>';return}
+  list.innerHTML=allAlerts.map(a=>`<div class="bg-error-container/30 rounded-lg p-4 border border-error/20 shadow-sm mb-3"><div class="flex justify-between items-start mb-2"><span class="font-bold text-sm text-on-error-container">${a.traffic_type}</span><span class="text-[9px] font-bold uppercase bg-error text-on-error px-2 py-0.5 rounded">${a.threat_level||'HIGH'}</span></div><div class="text-[11px] text-on-error-container/70 font-mono">${a.ports}</div><div class="text-[10px] text-on-error-container/50 mt-1">${a.time.toLocaleTimeString('en-US',{hour12:false})}</div></div>`).join('')
+}
+
+const LOG_STYLE={sys:'text-surface-variant/70',inf:'text-surface-variant/70',ok:'text-tertiary-container',alr:'text-error font-bold'}
+const LOG_PREFIX={sys:'SYS:',inf:'INF:',ok:'OK: ',alr:'ALR:'}
+function addLog(msg,type='inf'){
+  const box=document.getElementById('logBox'),time=new Date().toLocaleTimeString('en-US',{hour12:false})
+  const el=document.createElement('p');el.className=LOG_STYLE[type]||'text-surface-variant/70'
+  el.innerHTML=`[${time}] <span class="font-bold">${LOG_PREFIX[type]||'SYS:'}</span> ${msg}`
+  box.insertBefore(el,box.firstChild)
+  if(box.children.length>40)box.removeChild(box.lastChild)
+}
+</script>
+</body>
+</html>

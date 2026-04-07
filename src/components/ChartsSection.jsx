@@ -1,190 +1,129 @@
 import React from 'react'
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
+  Chart as ChartJS, CategoryScale, LinearScale,
+  PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler
 } from 'chart.js'
 import { Line, Doughnut } from 'react-chartjs-2'
-import { TrendingUp, PieChart, RefreshCw } from 'lucide-react'
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler)
+
+const DOUGHNUT_COLORS = [
+  '#FF5630','#0052CC','#36B37E','#FFAB00',
+  '#6554C0','#00B8D9','#FF8B00','#57D9A3'
+]
 
 const ChartsSection = ({ chartData }) => {
-  const timelineOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          color: '#e5e7eb',
-          font: { size: 12, weight: '600' },
-          usePointStyle: true,
-          padding: 20
-        }
-      },
-      tooltip: {
-        backgroundColor: 'rgba(30, 41, 59, 0.95)',
-        titleColor: '#ffffff',
-        bodyColor: '#e5e7eb',
-        borderColor: '#3b82f6',
-        borderWidth: 1,
-        cornerRadius: 8,
-        displayColors: true
-      }
-    },
-    scales: {
-      x: {
-        ticks: { color: '#9ca3af', font: { size: 11 } },
-        grid: { color: 'rgba(156, 163, 175, 0.1)' }
-      },
-      y: {
-        ticks: { color: '#9ca3af', font: { size: 11 } },
-        grid: { color: 'rgba(156, 163, 175, 0.1)' },
-        beginAtZero: true
-      }
-    },
-    interaction: {
-      intersect: false,
-      mode: 'index'
-    }
-  }
 
-  const timelineData = {
+  const lineData = {
     labels: chartData.timeline.labels || [],
     datasets: [
       {
-        label: 'Threats Detected',
-        data: chartData.timeline.threats || [],
-        borderColor: '#ef4444',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#ef4444',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        borderWidth: 2
-      },
-      {
         label: 'Safe Traffic',
         data: chartData.timeline.safe || [],
-        borderColor: '#22c55e',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#22c55e',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        borderWidth: 2
+        borderColor: '#36B37E',
+        backgroundColor: 'rgba(54,179,126,0.08)',
+        fill: true, tension: 0.4,
+        pointBackgroundColor: '#36B37E',
+        pointBorderColor: '#fff', pointBorderWidth: 2,
+        pointRadius: 4, pointHoverRadius: 6, borderWidth: 3
+      },
+      {
+        label: 'Malicious',
+        data: chartData.timeline.threats || [],
+        borderColor: '#FF5630',
+        backgroundColor: 'rgba(255,86,48,0.08)',
+        fill: true, tension: 0.4,
+        pointBackgroundColor: '#FF5630',
+        pointBorderColor: '#fff', pointBorderWidth: 2,
+        pointRadius: 4, pointHoverRadius: 6, borderWidth: 3
       }
     ]
   }
 
-  const trafficOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '60%',
+  const lineOptions = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: { color: '#42526E', font: { size: 11, weight: '600', family: 'Space Grotesk' }, usePointStyle: true, padding: 16 }
+      },
+      tooltip: {
+        backgroundColor: '#172B4D', titleColor: '#fff', bodyColor: '#DFE1E6',
+        borderColor: '#0052CC', borderWidth: 1, cornerRadius: 8
+      }
+    },
+    scales: {
+      x: { ticks: { color: '#7A869A', font: { size: 10 } }, grid: { color: 'rgba(122,134,154,0.1)' } },
+      y: { ticks: { color: '#7A869A', font: { size: 10 } }, grid: { color: 'rgba(122,134,154,0.1)' }, beginAtZero: true }
+    }
+  }
+
+  const doughnutData = {
+    labels: chartData.traffic.labels || [],
+    datasets: [{
+      data: chartData.traffic.data || [],
+      backgroundColor: DOUGHNUT_COLORS,
+      borderWidth: 2, borderColor: '#F4F5F7',
+      hoverBorderWidth: 3, hoverBorderColor: '#fff'
+    }]
+  }
+
+  const doughnutOptions = {
+    responsive: true, maintainAspectRatio: false, cutout: '62%',
     plugins: {
       legend: {
         position: 'bottom',
-        labels: {
-          color: '#e5e7eb',
-          font: { size: 11, weight: '600' },
-          padding: 15,
-          usePointStyle: true
-        }
+        labels: { color: '#42526E', font: { size: 10, weight: '600', family: 'Space Grotesk' }, padding: 10, usePointStyle: true }
       },
       tooltip: {
-        backgroundColor: 'rgba(30, 41, 59, 0.95)',
-        titleColor: '#ffffff',
-        bodyColor: '#e5e7eb',
-        borderColor: '#3b82f6',
-        borderWidth: 1,
-        cornerRadius: 8
+        backgroundColor: '#172B4D', titleColor: '#fff', bodyColor: '#DFE1E6',
+        borderColor: '#0052CC', borderWidth: 1, cornerRadius: 8
       }
     }
   }
 
-  const trafficData = {
-    labels: chartData.traffic.labels || [],
-    datasets: [
-      {
-        data: chartData.traffic.data || [],
-        backgroundColor: [
-          '#3b82f6', '#06b6d4', '#8b5cf6', '#10b981',
-          '#f59e0b', '#ef4444', '#6b7280', '#ec4899'
-        ],
-        borderWidth: 2,
-        borderColor: '#1e293b',
-        hoverBorderWidth: 3,
-        hoverBorderColor: '#ffffff'
-      }
-    ]
-  }
-
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-      {/* Timeline Chart */}
-      <div className="xl:col-span-2 card card-hover">
-        <div className="flex items-center justify-between p-6 border-b border-dark-700">
-          <div className="flex items-center space-x-3">
-            <TrendingUp className="w-5 h-5 text-primary-400" />
-            <h3 className="text-lg font-semibold text-white">Threat Detection Timeline</h3>
+    <div className="flex gap-4 min-h-0" style={{ height: '100%' }}>
+
+      {/* Timeline */}
+      <div className="flex-1 bg-surface rounded-xl border border-outline-variant shadow-sm p-4 flex flex-col overflow-hidden">
+        <div className="flex justify-between items-center mb-3 shrink-0">
+          <h3 className="font-headline font-bold text-on-surface text-xs uppercase tracking-widest">
+            Threat Detection Timeline (Real-time)
+          </h3>
+          <div className="flex gap-4 text-[10px] uppercase font-headline font-bold">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-secondary"></span> Safe
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-tertiary"></span> Malicious
+            </div>
           </div>
-          <div className="text-sm text-gray-400">Real-time Analysis</div>
         </div>
-        <div className="p-6">
-          <div className="h-80">
-            <Line data={timelineData} options={timelineOptions} />
-          </div>
+        <div className="flex-1 min-h-0">
+          <Line data={lineData} options={lineOptions} />
         </div>
       </div>
 
-      {/* Traffic Analysis */}
-      <div className="card card-hover">
-        <div className="flex items-center justify-between p-6 border-b border-dark-700">
-          <div className="flex items-center space-x-3">
-            <PieChart className="w-5 h-5 text-primary-400" />
-            <h3 className="text-lg font-semibold text-white">Traffic Analysis</h3>
-          </div>
-          <button className="p-2 hover:bg-dark-700 rounded-lg transition-colors">
-            <RefreshCw className="w-4 h-4 text-gray-400" />
-          </button>
-        </div>
-        <div className="p-6">
-          <div className="h-80">
-            {chartData.traffic.labels?.length > 0 ? (
-              <Doughnut data={trafficData} options={trafficOptions} />
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                <div className="text-center">
-                  <PieChart className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Waiting for traffic data...</p>
-                </div>
+      {/* Doughnut */}
+      <div className="w-56 bg-surface rounded-xl border border-outline-variant shadow-sm p-4 flex flex-col overflow-hidden">
+        <h3 className="font-headline font-bold text-on-surface text-xs uppercase tracking-widest mb-3 shrink-0">
+          Traffic Distribution
+        </h3>
+        <div className="flex-1 min-h-0">
+          {chartData.traffic.labels?.length > 0 ? (
+            <Doughnut data={doughnutData} options={doughnutOptions} />
+          ) : (
+            <div className="h-full flex items-center justify-center text-on-surface-variant text-xs text-center">
+              <div>
+                <div className="text-3xl mb-2">📊</div>
+                <p>Waiting for<br />traffic data...</p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
+
     </div>
   )
 }
