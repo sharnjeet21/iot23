@@ -15,7 +15,7 @@ import sqlite3
 import os
 
 # Configuration
-MAC_IP = os.environ.get('MAC_IP', '10.237.20.251')
+MAC_IP = os.environ.get('MAC_IP', '10.243.186.251')
 API_SERVER_URL = os.environ.get('API_SERVER_URL', f'http://{MAC_IP}:8080')
 BACKEND_PORT = int(os.environ.get('BACKEND_PORT', 5002))
 

@@ -470,7 +470,7 @@ def predict_simple():
             }
             
             # Send to dashboard
-            dashboard_ip = os.environ.get('DASHBOARD_IP', '10.237.20.251')
+            dashboard_ip = os.environ.get('DASHBOARD_IP', '10.243.186.251')
             requests.post(
                 f"http://{dashboard_ip}:5002/api/esp32_data",
                 json=dashboard_data,

@@ -18,7 +18,7 @@ FEATURES   = ['id_orig_p', 'id_resp_p', 'duration', 'orig_bytes', 'resp_bytes',
 SAMPLE_SIZE = 600_000   # 600k rows — fast but representative
 TARGET_ACC  = 0.90
 
-# ── Label mapping ─────────────────────────────────────────────────────────────
+# ── Label mapping 
 LABEL_MAP = {
     'Benign':                        'Benign',
     'PartOfAHorizontalPortScan':     'PortScan',
