@@ -15,7 +15,7 @@ import sqlite3
 import os
 
 # Configuration
-MAC_IP = os.environ.get('MAC_IP', '10.243.186.251')
+MAC_IP = os.environ.get('MAC_IP', '192.168.1.38')
 API_SERVER_URL = os.environ.get('API_SERVER_URL', f'http://{MAC_IP}:8080')
 BACKEND_PORT = int(os.environ.get('BACKEND_PORT', 5002))
 
@@ -105,6 +105,56 @@ def check_esp32_connection():
         except:
             pass
 
+def load_historical_data():
+    """Load historical data from database on startup"""
+    try:
+        conn = sqlite3.connect('dashboard.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Get all records from database
+        cursor.execute('''
+            SELECT timestamp, source_ip, ports, is_malicious, confidence, threat_level, traffic_type
+            FROM dashboard_logs
+            ORDER BY timestamp DESC
+            LIMIT 100
+        ''')
+        
+        records = cursor.fetchall()
+        
+        # Convert to list of dicts and add to dashboard data
+        for record in records:
+            detection = {
+                'timestamp': record['timestamp'],
+                'source_ip': record['source_ip'],
+                'traffic_type': record['traffic_type'],
+                'ports': record['ports'],
+                'is_malicious': bool(record['is_malicious']),
+                'confidence': record['confidence'],
+                'threat_level': record['threat_level'],
+                'recommendation': 'MONITOR' if record['is_malicious'] else 'ALLOW'
+            }
+            dashboard_data['threats'].append(detection)
+        
+        # Update statistics from database
+        cursor.execute('SELECT COUNT(*) FROM dashboard_logs')
+        total = cursor.fetchone()[0]
+        
+        cursor.execute('SELECT COUNT(*) FROM dashboard_logs WHERE is_malicious = 1')
+        threats = cursor.fetchone()[0]
+        
+        dashboard_data['system_status']['total_checks'] = total
+        dashboard_data['system_status']['threats_detected'] = threats
+        dashboard_data['system_status']['threat_rate'] = round((threats / total * 100), 1) if total > 0 else 0.0
+        
+        conn.close()
+        
+        print(f"📂 Loaded {len(dashboard_data['threats'])} historical records from database")
+        print(f"📊 Total Checks: {total}, Threats: {threats}, Rate: {dashboard_data['system_status']['threat_rate']}%")
+        
+    except Exception as e:
+        print(f"⚠️  Error loading historical data: {e}")
+
 def periodic_status_check():
     """Periodically check system status"""
     while True:
@@ -184,6 +234,44 @@ def get_traffic_stats():
     """Get traffic statistics"""
     return jsonify(dashboard_data['traffic_stats'])
 
+@app.route('/api/historical_data')
+def get_historical_data():
+    """Get historical data from database"""
+    try:
+        conn = sqlite3.connect('dashboard.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Get records with optional limit
+        limit = request.args.get('limit', 50, type=int)
+        cursor.execute('''
+            SELECT timestamp, source_ip, ports, is_malicious, confidence, threat_level, traffic_type
+            FROM dashboard_logs
+            ORDER BY timestamp DESC
+            LIMIT ?
+        ''', (limit,))
+        
+        records = cursor.fetchall()
+        conn.close()
+        
+        # Convert to list of dicts
+        data = []
+        for record in records:
+            data.append({
+                'timestamp': record['timestamp'],
+                'source_ip': record['source_ip'],
+                'traffic_type': record['traffic_type'],
+                'ports': record['ports'],
+                'is_malicious': bool(record['is_malicious']),
+                'confidence': record['confidence'],
+                'threat_level': record['threat_level'],
+                'recommendation': 'MONITOR' if record['is_malicious'] else 'ALLOW'
+            })
+        
+        return jsonify({'data': data, 'count': len(data)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @socketio.on('connect')
 def handle_connect():
     """Handle client connection"""
@@ -208,6 +296,9 @@ if __name__ == '__main__':
     # Initialize database
     init_dashboard_db()
     print("✅ Dashboard database initialized")
+    
+    # Load historical data from database
+    load_historical_data()
     
     # Check API server
     if check_api_server():

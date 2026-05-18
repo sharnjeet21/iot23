@@ -12,7 +12,7 @@ import SecurityPolicy from './components/SecurityPolicy'
 import SettingsModal from './components/SettingsModal'
 import ProfileModal from './components/ProfileModal'
 
-const DEFAULT_IP = import.meta.env.VITE_SERVER_IP || '10.237.20.251'
+const DEFAULT_IP = import.meta.env.VITE_SERVER_IP || '192.168.1.38'
 
 function App() {
   const [serverIp, setServerIp] = useState(() => localStorage.getItem('serverIp') || DEFAULT_IP)
