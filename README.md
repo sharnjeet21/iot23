@@ -138,8 +138,7 @@ CyberShield is a complete IoT security solution consisting of:
 8. 💉 Injection Attack
 9. 🔄 Command & Control
 10. 📊 Botnet Activity
-11. 🌍 Geo-Spoofing
-12. 🔗 Man-in-the-Middle
+
 
 ---
 
